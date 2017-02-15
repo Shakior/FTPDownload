@@ -14,8 +14,9 @@ using System.Threading;
 
 namespace WindowsFormsApplication1
 {
-    public partial class Form1 : Form
+    public partial class FtpDownloadForm : Form
     {
+        FtpDownload ftpDownload;
         private long rest;
         private long loaded;
         private long filesize;
@@ -24,9 +25,10 @@ namespace WindowsFormsApplication1
         private bool downloadProcessing = false;
         string uri;
 
-        public Form1()
+        public FtpDownloadForm()
         {
             InitializeComponent();
+            ftpDownload = new FtpDownload();
         }
 
         private void buttonDownload_Click(object sender, EventArgs e)
@@ -50,17 +52,13 @@ namespace WindowsFormsApplication1
             string filename = uri.Substring(uri.LastIndexOf('/') + 1);
             try
             {
-                FtpWebRequest requestDownload = (FtpWebRequest)WebRequest.Create(uri);
-                FtpWebRequest requestFileSize = (FtpWebRequest)WebRequest.Create(uri);
-
-                requestFileSize.Method = WebRequestMethods.Ftp.GetFileSize;
-                var q = (FtpWebResponse)requestFileSize.GetResponse();
-                filesize = rest = q.ContentLength;
+                filesize = rest = ftpDownload.getFilesize(uri);
                 loaded = 0;
                 setLoaded(loaded);
-                progressMax((int)filesize);//если размер больше инта
-                progressValue(0);
+                progressMax((int)filesize);//если размер больше инта?
+                progressValue((int)loaded);
 
+                FtpWebRequest requestDownload = (FtpWebRequest)WebRequest.Create(uri);
                 requestDownload.Method = WebRequestMethods.Ftp.DownloadFile;
                 FtpWebResponse response = (FtpWebResponse)requestDownload.GetResponse();
                 Stream responseStream = response.GetResponseStream();
